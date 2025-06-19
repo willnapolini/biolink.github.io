@@ -1,0 +1,1464 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Will Napolini - Digital Creator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Asap:wght@300;400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      /* Your existing styles here */
+      @import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap");
+
+      body {
+        font-family: "Inter", sans-serif;
+        transition: background-color 0.5s ease;
+        margin: 0;
+        padding: 0;
+        height: 100vh;
+        background: #08090d;
+        background-image: url(https://assets.codepen.io/13471/abstract-light.jpg),
+          linear-gradient(
+            to right in oklab,
+            hsl(var(--hue2) 50% 75%),
+            hsl(var(--hue1) 50% 75%)
+          );
+        background-size: cover;
+        background-position: center;
+        background-blend-mode: hard-light;
+        color: white;
+        overflow: hidden;
+      }
+
+      :root {
+        --hue1: 255;
+        --hue2: 222;
+        --border: 1px;
+        --border-color: hsl(var(--hue2), 12%, 20%);
+        --radius: 22px;
+        --ease: cubic-bezier(0.5, 1, 0.89, 1);
+        --fg: white;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      .glass-card {
+        background: rgba(255, 255, 255, 0.08);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border: var(--border) solid transparent;
+        border-radius: var(--radius);
+        position: relative;
+        overflow: hidden;
+      }
+
+      .glass-card.profile-card::before {
+        content: "";
+        position: absolute;
+        inset: -2px;
+        border-radius: inherit;
+        border: 2px solid transparent;
+        background: conic-gradient(
+          from 0deg at 50% 50%,
+          hsl(var(--hue1), 80%, 60%) 0deg,
+          transparent 90deg,
+          hsl(var(--hue2), 80%, 60%) 180deg,
+          transparent 270deg,
+          hsl(var(--hue1), 80%, 60%) 360deg
+        );
+        z-index: -1;
+        mask: linear-gradient(#000 0 0) padding-box, linear-gradient(#000 0 0);
+        mask-composite: exclude;
+      }
+
+      .social-icon,
+      .action-btn,
+      .neon-chat-toggle,
+      .send-button,
+      .chat-minimize-btn,
+      .chat-close-btn,
+      .color-controls-toggle,
+      #languageSelector {
+        position: relative;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        border: var(--border) solid transparent;
+        z-index: 1;
+      }
+
+      .social-icon:hover,
+      .action-btn:hover,
+      .neon-chat-toggle:hover,
+      .send-button:hover,
+      .chat-minimize-btn:hover,
+      .chat-close-btn:hover,
+      .color-controls-toggle:hover,
+      #languageSelector:hover {
+        transform: translateY(-2px) scale(1.05);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+      }
+
+      .social-icon::before,
+      .action-btn::before,
+      .neon-chat-toggle::before,
+      .send-button::before,
+      .chat-minimize-btn::before,
+      .chat-close-btn::before,
+      .color-controls-toggle::before,
+      #languageSelector::before {
+        content: "";
+        position: absolute;
+        inset: -2px;
+        border-radius: inherit;
+        border: 2px solid transparent;
+        background: conic-gradient(
+          from 0deg at 50% 50%,
+          hsl(var(--hue1), 80%, 60%) 0deg,
+          transparent 90deg,
+          hsl(var(--hue2), 80%, 60%) 180deg,
+          transparent 270deg,
+          hsl(var(--hue1), 80%, 60%) 360deg
+        );
+        z-index: -1;
+        mask: linear-gradient(#000 0 0) padding-box, linear-gradient(#000 0 0);
+        mask-composite: exclude;
+      }
+
+      .profile-img {
+        background: conic-gradient(
+          from -45deg at center,
+          hsl(var(--hue1), 80%, 60%),
+          transparent,
+          hsl(var(--hue1), 80%, 60%)
+        );
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+        border: 0px solid rgba(255, 255, 255, 0.2);
+      }
+
+      .container-fit {
+        max-height: 100vh;
+        overflow: hidden;
+      }
+
+      /* Chat modal container */
+      .neon-chat-modal {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, calc(-50% + 20px));
+        width: 350px;
+        height: 500px;
+        z-index: 9999;
+        display: none;
+        flex-direction: column;
+        opacity: 0;
+        transition: all 0.3s ease;
+      }
+
+      .neon-chat-modal.active {
+        display: flex;
+        transform: translate(-50%, -50%);
+        opacity: 1;
+      }
+
+      /* Add this to your style section */
+      .chat-active .container-fit,
+      .chat-active .neon-chat-toggle {
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.3s ease;
+      }
+
+      /* This ensures the chat modal remains visible */
+      .chat-active .neon-chat-modal.active {
+        opacity: 1;
+        pointer-events: auto;
+      }
+
+      /* Chat toggle button */
+      .neon-chat-toggle {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        background: transparent;
+        color: white;
+        border: var(--border) solid var(--border-color);
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        backdrop-filter: blur(12px);
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        transition: all 0.3s ease;
+        will-change: transform;
+      }
+
+      .neon-chat-toggle::before {
+        content: "";
+        position: absolute;
+        inset: -2px;
+        border-radius: inherit;
+        background: conic-gradient(
+          from -45deg at center,
+          hsl(var(--hue1), 80%, 60%),
+          transparent,
+          hsl(var(--hue1), 80%, 60%)
+        );
+        z-index: -1;
+        animation: rotate 2s linear infinite;
+      }
+
+      .neon-chat-toggle:hover {
+        transform: scale(1.1);
+      }
+
+      .neon-chat-toggle svg {
+        width: 24px;
+        height: 24px;
+      }
+
+      /* Chat container styles */
+      .neon-chat-container {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        padding: 50px 15px 15px 15px;
+        gap: 15px;
+        background: transparent;
+        border-radius: var(--radius);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        overflow: hidden;
+      }
+
+      .chat-header {
+        position: relative;
+        min-height: 60px;
+        border-radius: var(--radius);
+        border: var(--border) solid var(--border-color);
+        background: linear-gradient(
+            235deg,
+            hsl(var(--hue1) 50% 10% / 0.8),
+            hsl(var(--hue1) 50% 10% / 0) 33%
+          ),
+          linear-gradient(
+            45deg,
+            hsl(var(--hue2) 50% 10% / 0.8),
+            hsl(var(--hue2) 50% 10% / 0) 33%
+          ),
+          linear-gradient(hsl(220deg 25% 4.8% / 0.66));
+        backdrop-filter: blur(12px);
+        box-shadow: hsl(var(--hue2) 50% 2%) 0px 10px 16px -8px,
+          hsl(var(--hue2) 50% 4%) 0px 20px 36px -14px;
+        transition: all 0.3s var(--ease);
+        display: flex;
+        align-items: center;
+        padding: 0.8em;
+      }
+
+      /* Reduced motion support */
+      @media (prefers-reduced-motion: reduce) {
+        * {
+          animation-duration: 0.01ms !important;
+          animation-iteration-count: 1 !important;
+          transition-duration: 0.01ms !important;
+          scroll-behavior: auto !important;
+        }
+      }
+
+      /* High contrast mode support */
+      @media (prefers-contrast: more) {
+        .chat-header,
+        .message,
+        .chat-input-container {
+          border: 2px solid white;
+        }
+      }
+
+      /* Keyframes for animations */
+      @keyframes glow {
+        0% {
+          opacity: 0;
+        }
+        3% {
+          opacity: 1;
+        }
+        10% {
+          opacity: 0;
+        }
+        12% {
+          opacity: 0.7;
+        }
+        16% {
+          opacity: 0.3;
+          animation-timing-function: var(--ease);
+        }
+        100% {
+          opacity: 1;
+          animation-timing-function: var(--ease);
+        }
+      }
+
+      @keyframes rotate {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+
+      /* Responsive design */
+      @media (max-width: 768px) {
+        .neon-chat-modal {
+          width: 90%;
+          height: 80%;
+        }
+      }
+
+      .chat-header__inner {
+        display: flex;
+        align-items: center;
+        width: 100%;
+      }
+
+      .avatar-container {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background: conic-gradient(
+          from -45deg at center,
+          hsl(var(--hue1), 80%, 60%),
+          transparent,
+          hsl(var(--hue1), 80%, 60%)
+        );
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 10px;
+      }
+
+      .ai-avatar {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        object-fit: cover;
+      }
+
+      .chat-title-container {
+        display: flex;
+        flex-direction: column;
+      }
+
+      .chat-title {
+        color: white;
+        font-size: 1.2rem;
+        font-weight: 600;
+        margin: 0;
+      }
+
+      .online-status {
+        display: flex;
+        align-items: center;
+        gap: 0.5em;
+        color: #737985;
+        font-size: 0.75rem;
+      }
+
+      .status-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: hsl(var(--hue1), 80%, 60%);
+        box-shadow: 0 0 10px hsl(var(--hue1), 80%, 60%);
+        animation: pulse 2s ease-in-out infinite;
+      }
+
+      .chat-header-controls {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        z-index: 10;
+      }
+
+      .color-controls {
+        position: relative;
+      }
+
+      .color-controls-toggle {
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        background: hsl(var(--hue1), 60%, 50%, 0.2);
+        border: 1px solid hsl(var(--hue1), 60%, 50%);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+
+      .color-controls-toggle:hover {
+        background: hsl(var(--hue1), 60%, 50%, 0.4);
+        transform: scale(1.1);
+      }
+
+      .color-controls-toggle svg {
+        width: 12px;
+        height: 12px;
+      }
+
+      .color-controls-content {
+        position: absolute;
+        top: 30px;
+        right: 0;
+        display: none;
+        flex-direction: column;
+        gap: 5px;
+        padding: 0.8em;
+        border-radius: calc(var(--radius) * 0.6);
+        background: linear-gradient(
+            235deg,
+            hsl(var(--hue1) 50% 10% / 0.9),
+            hsl(var(--hue1) 50% 10% / 0.3) 33%
+          ),
+          linear-gradient(hsl(220deg 25% 4.8% / 0.8));
+        backdrop-filter: blur(12px);
+        border: var(--border) solid var(--border-color);
+        z-index: 10;
+      }
+
+      .color-controls-content h3 {
+        margin: 0 0 0.3em 0;
+        color: white;
+        font-size: 0.7rem;
+      }
+
+      .color-controls-content input[type="range"] {
+        width: 120px;
+        margin: 0;
+        -webkit-appearance: none;
+        appearance: none;
+        height: 4px;
+        border-radius: 2px;
+        background: linear-gradient(
+          90deg,
+          hsl(0, 80%, 50%),
+          hsl(60, 80%, 50%),
+          hsl(120, 80%, 50%),
+          hsl(180, 80%, 50%),
+          hsl(240, 80%, 50%),
+          hsl(300, 80%, 50%),
+          hsl(360, 80%, 50%)
+        );
+        outline: none;
+      }
+
+      .color-controls-content input[type="range"]::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: white;
+        cursor: pointer;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+      }
+
+      .color-controls-content input[type="range"]::-moz-range-thumb {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: white;
+        cursor: pointer;
+        border: none;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+      }
+
+      .chat-messages {
+        flex: 1;
+        overflow-y: auto;
+        padding: 0.8em;
+        display: flex;
+        flex-direction: column;
+        gap: 0.8em;
+        scrollbar-width: thin;
+        scrollbar-color: hsl(var(--hue2), 50%, 30%) transparent;
+      }
+
+      .chat-messages::-webkit-scrollbar {
+        width: 6px;
+      }
+
+      .chat-messages::-webkit-scrollbar-track {
+        background: transparent;
+      }
+
+      .chat-messages::-webkit-scrollbar-thumb {
+        background: hsl(var(--hue2), 50%, 30%);
+        border-radius: 3px;
+      }
+
+      .message {
+        position: relative;
+        max-width: 80%;
+        padding: 0.8em 1.2em;
+        border-radius: var(--radius);
+        border: var(--border) solid var(--border-color);
+        backdrop-filter: blur(12px);
+        animation: messageAppear 0.5s var(--ease) both;
+        word-wrap: break-word;
+        font-size: 0.9rem;
+      }
+
+      .message.user {
+        align-self: flex-end;
+        background: linear-gradient(
+            235deg,
+            hsl(var(--hue1) 50% 15% / 0.9),
+            hsl(var(--hue1) 50% 10% / 0.3) 33%
+          ),
+          linear-gradient(hsl(220deg 25% 4.8% / 0.66));
+        color: white;
+      }
+
+      .message.bot {
+        align-self: flex-start;
+        background: linear-gradient(
+            235deg,
+            hsl(var(--hue2) 50% 15% / 0.9),
+            hsl(var(--hue2) 50% 10% / 0.3) 33%
+          ),
+          linear-gradient(hsl(220deg 25% 4.8% / 0.66));
+        color: #e0e0e0;
+      }
+
+      .message::before {
+        content: "";
+        position: absolute;
+        inset: -1px;
+        border-radius: inherit;
+        background: conic-gradient(
+          from -45deg at center in oklch,
+          transparent 0%,
+          hsl(var(--msg-hue, var(--hue1)), 60%, 50%),
+          transparent 50%
+        );
+        z-index: -1;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+      }
+
+      .message.user::before {
+        --msg-hue: var(--hue1);
+      }
+
+      .message.bot::before {
+        --msg-hue: var(--hue2);
+      }
+
+      .message:hover::before {
+        opacity: 0.2;
+      }
+
+      .message-time {
+        font-size: 0.65rem;
+        opacity: 0.6;
+        margin-top: 0.5em;
+      }
+
+      .chat-input-container {
+        position: relative;
+        border-radius: var(--radius);
+        border: var(--border) solid var(--border-color);
+        background: linear-gradient(
+            235deg,
+            hsl(var(--hue1) 50% 10% / 0.8),
+            hsl(var(--hue1) 50% 10% / 0) 33%
+          ),
+          linear-gradient(
+            45deg,
+            hsl(var(--hue2) 50% 10% / 0.8),
+            hsl(var(--hue2) 50% 10% / 0) 33%
+          ),
+          linear-gradient(hsl(220deg 25% 4.8% / 0.66));
+        backdrop-filter: blur(12px);
+        box-shadow: hsl(var(--hue2) 50% 2%) 0px 10px 16px -8px,
+          hsl(var(--hue2) 50% 4%) 0px 20px 36px -14px;
+        transition: all 0.3s var(--ease);
+      }
+
+      .chat-input-form {
+        display: flex;
+        gap: 0.8em;
+        align-items: flex-end;
+      }
+
+      .chat-input {
+        flex: 1;
+        background: hsl(var(--hue1) 0% 40% / 0.05);
+        border: 1px solid hsl(var(--hue2) 13% 18.5% / 0.5);
+        border-radius: calc(var(--radius) * 0.6);
+        padding: 0.8em 1.2em;
+        color: white;
+        font-family: inherit;
+        font-size: 0.9rem;
+        resize: none;
+        min-height: 40px;
+        max-height: 100px;
+        transition: all 0.3s ease;
+      }
+
+      .chat-input:focus {
+        outline: none;
+        border-color: hsl(var(--hue1), 60%, 50%);
+        box-shadow: 0 0 0 2px hsl(var(--hue1), 60%, 50%, 0.2);
+      }
+
+      .chat-input::placeholder {
+        color: #737985;
+      }
+
+      .send-button {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        border: var(--border) solid var(--border-color);
+        background: transparent;
+        color: white;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s ease;
+        backdrop-filter: blur(12px);
+        box-shadow: 0 0 15px hsl(var(--hue1), 60%, 50%, 0.5);
+        position: relative;
+        overflow: hidden;
+      }
+
+      .send-button:hover {
+        transform: scale(1.05);
+        box-shadow: 0 0 15px hsl(var(--hue1), 60%, 50%, 0.5);
+      }
+
+      .send-button:active {
+        transform: scale(0.95);
+      }
+
+      .send-button::before {
+        content: "";
+        position: absolute;
+        inset: -2px;
+        border-radius: inherit;
+        background: conic-gradient(
+          from 0deg at center,
+          hsl(var(--hue1), 80%, 60%),
+          transparent,
+          hsl(var(--hue1), 80%, 60%)
+        );
+        z-index: -1;
+        animation: rotate 2s linear infinite;
+      }
+
+      .typing-indicator {
+        align-self: flex-start;
+        padding: 0.8em 1.2em;
+        border-radius: var(--radius);
+        border: var(--border) solid var(--border-color);
+        background: linear-gradient(
+            235deg,
+            hsl(var(--hue2) 50% 15% / 0.9),
+            hsl(var(--hue2) 50% 10% / 0.3) 33%
+          ),
+          linear-gradient(hsl(220deg 25% 4.8% / 0.66));
+        backdrop-filter: blur(12px);
+        display: none;
+        align-items: center;
+        gap: 0.5em;
+        color: #737985;
+        font-size: 0.8rem;
+      }
+
+      .typing-dots {
+        display: flex;
+        gap: 0.25em;
+      }
+
+      .typing-dot {
+        width: 5px;
+        height: 5px;
+        border-radius: 50%;
+        background: hsl(var(--hue2), 60%, 50%);
+        animation: typingPulse 1.5s ease-in-out infinite;
+      }
+
+      .typing-dot:nth-child(2) {
+        animation-delay: 0.2s;
+      }
+
+      .typing-dot:nth-child(3) {
+        animation-delay: 0.4s;
+      }
+
+      @keyframes pulse {
+        0%,
+        100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.5;
+        }
+      }
+
+      @keyframes messageAppear {
+        0% {
+          opacity: 0;
+          transform: translateY(20px) scale(0.95);
+        }
+        100% {
+          opacity: 1;
+          transform: translateY(0) scale(1);
+        }
+      }
+
+      @keyframes typingPulse {
+        0%,
+        60%,
+        100% {
+          transform: scale(1);
+          opacity: 0.5;
+        }
+        30% {
+          transform: scale(1.2);
+          opacity: 1;
+        }
+      }
+
+      /* Minimized state */
+      .neon-chat-modal.minimized {
+        height: 60px;
+        overflow: hidden;
+      }
+
+      .neon-chat-modal.minimized .chat-messages,
+      .neon-chat-modal.minimized .chat-input-container,
+      .neon-chat-modal.minimized .typing-indicator {
+        display: none;
+      }
+
+      .neon-chat-modal.minimized .chat-header {
+        cursor: pointer;
+      }
+
+      .neon-chat-modal.minimized .chat-header-controls {
+        display: flex;
+      }
+
+      /* Close button */
+      .chat-close-btn {
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        background: hsl(var(--hue1), 60%, 50%, 0.2);
+        border: 1px solid hsl(var(--hue1), 60%, 50%);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+
+      .chat-close-btn:hover {
+        background: hsl(var(--hue1), 60%, 50%, 0.4);
+        transform: scale(1.1);
+      }
+
+      .chat-close-btn svg {
+        width: 12px;
+        height: 12px;
+      }
+
+      /* Minimize button */
+      .chat-minimize-btn {
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        background: hsl(var(--hue1), 60%, 50%, 0.2);
+        border: 1px solid hsl(var(--hue1), 60%, 50%);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+
+      .chat-minimize-btn:hover {
+        background: hsl(var(--hue1), 60%, 50%, 0.4);
+        transform: scale(1.1);
+      }
+
+      .chat-minimize-btn svg {
+        width: 12px;
+        height: 12px;
+      }
+    </style>
+  </head>
+  <body
+    class="min-h-screen flex items-center justify-center transition-colors duration-500"
+  >
+    <div class="w-full max-w-sm mx-auto p-3 container-fit">
+      <!-- Profile Card -->
+      <div class="glass-card profile-card rounded-2xl p-4 mb-3 shadow-xl">
+        <div class="flex justify-center mb-4">
+          <img
+            src="https://avatars.githubusercontent.com/u/192521042?v=4"
+            alt="Will Napolini"
+            class="w-20 h-20 sm:w-24 sm:h-24 rounded-full object-cover profile-img animate-float"
+          />
+        </div>
+
+        <h1 class="text-xl sm:text-2xl font-bold text-center mb-1">
+          Will Napolini
+        </h1>
+        <p class="text-center opacity-80 mb-4 text-sm" data-key="tagline">
+          Mindset • Skillset • Toolset
+        </p>
+
+        <div class="flex justify-center mb-4">
+          <button
+            id="languageSelector"
+            class="glass-card px-3 py-2 rounded-full flex items-center space-x-2 transition-all text-sm"
+          >
+            <span>🇺🇸</span>
+            <span>English</span>
+          </button>
+        </div>
+
+        <div class="grid grid-cols-4 gap-2 mb-4">
+          <a
+            href="https://t.me/willnapolini"
+            class="social-icon glass-card rounded-xl p-3 flex items-center justify-center text-lg"
+          >
+            <i class="fab fa-telegram"></i>
+          </a>
+          <a
+            href="https://twitter.com/willnapolini"
+            class="social-icon glass-card rounded-xl p-3 flex items-center justify-center text-lg"
+          >
+            <i class="fab fa-twitter"></i>
+          </a>
+          <a
+            href="https://instagram.com/willnapolini"
+            class="social-icon glass-card rounded-xl p-3 flex items-center justify-center text-lg"
+          >
+            <i class="fab fa-instagram"></i>
+          </a>
+          <a
+            href="https://open.spotify.com/user/willnapolini"
+            class="social-icon glass-card rounded-xl p-3 flex items-center justify-center text-lg"
+          >
+            <i class="fab fa-spotify"></i>
+          </a>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="space-y-2 mb-4">
+        <a
+          href="#"
+          class="action-btn glass-card rounded-xl p-3 flex items-center space-x-3"
+          data-section="blog"
+        >
+          <div
+            class="opacity-20 w-10 h-10 rounded-lg flex items-center justify-center text-lg"
+          >
+            <i class="fas fa-pen-fancy"></i>
+          </div>
+          <div class="flex-1">
+            <h3 class="font-semibold text-base" data-key="blog_title">Blog</h3>
+            <p class="text-xs opacity-70" data-key="blog_subtitle">
+              Read my posts
+            </p>
+          </div>
+          <div class="opacity-70">
+            <i class="fas fa-chevron-right text-sm"></i>
+          </div>
+        </a>
+
+        <a
+          href="#"
+          class="action-btn glass-card rounded-xl p-3 flex items-center space-x-3"
+          data-section="shop"
+        >
+          <div
+            class="opacity-20 w-10 h-10 rounded-lg flex items-center justify-center text-lg"
+          >
+            <i class="fas fa-shopping-bag"></i>
+          </div>
+          <div class="flex-1">
+            <h3 class="font-semibold text-base" data-key="shop_title">Shop</h3>
+            <p class="text-xs opacity-70" data-key="shop_subtitle">
+              Browse my products
+            </p>
+          </div>
+          <div class="opacity-70">
+            <i class="fas fa-chevron-right text-sm"></i>
+          </div>
+        </a>
+
+        <a
+          href="#"
+          class="action-btn glass-card rounded-xl p-3 flex items-center space-x-3"
+          data-section="contact"
+        >
+          <div
+            class="opacity-20 w-10 h-10 rounded-lg flex items-center justify-center text-lg"
+          >
+            <i class="fas fa-envelope"></i>
+          </div>
+          <div class="flex-1">
+            <h3 class="font-semibold text-base" data-key="contact_title">
+              Contact
+            </h3>
+            <p class="text-xs opacity-70" data-key="contact_subtitle">
+              Get in touch
+            </p>
+          </div>
+          <div class="opacity-70">
+            <i class="fas fa-chevron-right text-sm"></i>
+          </div>
+        </a>
+      </div>
+
+      <!-- Chat toggle button -->
+      <div class="flex justify-center">
+        <button class="neon-chat-toggle" id="chatToggle" aria-label="Toggle chat">
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path
+              d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"
+            />
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Chat modal -->
+    <div
+      class="neon-chat-modal"
+      id="chatModal"
+      role="dialog"
+      aria-labelledby="chatTitle"
+    >
+      <div class="chat-header-controls">
+        <button
+          class="chat-minimize-btn"
+          id="minimizeBtn"
+          aria-label="Minimize chat"
+        >
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path d="M5 12h14" />
+          </svg>
+        </button>
+        <div class="color-controls">
+          <button
+            class="color-controls-toggle"
+            id="colorControlsToggle"
+            aria-label="Toggle color controls"
+            aria-expanded="false"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path
+                d="M12 3L13.94 5.74 17.38 6.26 15.54 9.98 16.78 14.23 12.78 12.78 8.78 14.23 10.02 9.98 8.18 6.26 11.62 5.74L12 3Z"
+              />
+              <path d="M18 10a6 6 0 0 1-12 0h12z" />
+            </svg>
+          </button>
+          <div class="color-controls-content">
+            <h3>Customize Colors</h3>
+            <label>
+              <input
+                type="range"
+                id="hue1"
+                min="0"
+                max="360"
+                value="255"
+                aria-label="Primary hue"
+              />
+            </label>
+            <label>
+              <input
+                type="range"
+                id="hue2"
+                min="0"
+                max="360"
+                value="222"
+                aria-label="Secondary hue"
+              />
+            </label>
+          </div>
+        </div>
+        <button class="chat-close-btn" id="closeBtn" aria-label="Close chat">
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path d="M18 6L6 18M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+      <div class="neon-chat-container">
+        <div class="chat-header open">
+          <div class="chat-header__inner">
+            <div class="avatar-container">
+              <img
+                src="https://avatars.githubusercontent.com/u/192521042?v=4"
+                alt="AI Avatar"
+                class="ai-avatar"
+              />
+            </div>
+            <div class="chat-title-container">
+              <h1 class="chat-title" id="chatTitle">Will Napolini</h1>
+              <div class="online-status">
+                <div class="status-dot"></div>
+                <span>Online</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="chat-messages" id="chatMessages">
+          <div class="message bot">
+            <div>
+              Welcome to Neon Glass Chat! I'm your AI assistant. How can I help
+              you today?
+            </div>
+            <div class="message-time">Just now</div>
+          </div>
+        </div>
+
+        <div class="typing-indicator" id="typingIndicator">
+          <span>AI is typing</span>
+          <div class="typing-dots">
+            <div class="typing-dot"></div>
+            <div class="typing-dot"></div>
+            <div class="typing-dot"></div>
+          </div>
+        </div>
+
+        <div class="chat-input-container">
+          <div class="chat-input-container__inner">
+            <div class="chat-input-form" id="chatForm">
+              <textarea
+                class="chat-input"
+                id="chatInput"
+                placeholder="Type your message here..."
+                rows="1"
+                aria-label="Chat message input"
+              ></textarea>
+              <button
+                type="submit"
+                class="send-button"
+                id="sendButton"
+                aria-label="Send message"
+                disabled
+              >
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <path d="m22 2-7 20-4-9-9-4 20-7z" />
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // DOM elements
+      const chatModal = document.getElementById("chatModal");
+      const chatToggle = document.getElementById("chatToggle");
+      const closeBtn = document.getElementById("closeBtn");
+      const minimizeBtn = document.getElementById("minimizeBtn");
+      const chatMessages = document.getElementById("chatMessages");
+      const chatForm = document.getElementById("chatForm");
+      const chatInput = document.getElementById("chatInput");
+      const typingIndicator = document.getElementById("typingIndicator");
+      const hue1Slider = document.getElementById("hue1");
+      const hue2Slider = document.getElementById("hue2");
+      const colorControlsToggle = document.getElementById(
+        "colorControlsToggle"
+      );
+      const colorControlsContent = document.querySelector(
+        ".color-controls-content"
+      );
+      const sendButton = document.getElementById("sendButton");
+      const languageSelector = document.getElementById("languageSelector");
+      const actionButtons = document.querySelectorAll(".action-btn");
+
+      // Initialize with random colors
+      const rand1 = 120 + Math.floor(Math.random() * 240);
+      const rand2 = rand1 - 80 + (Math.floor(Math.random() * 60) - 30);
+      hue1Slider.value = rand1;
+      hue2Slider.value = rand2;
+      document.documentElement.style.setProperty("--hue1", rand1);
+      document.documentElement.style.setProperty("--hue2", rand2);
+
+      // Initialize states
+      colorControlsContent.style.display = "none";
+      let isMinimized = false;
+      let isSending = false;
+
+      // Chat toggle functionality
+      chatToggle.addEventListener("click", () => {
+        if (chatModal.classList.contains("active")) {
+          if (isMinimized) {
+            chatModal.classList.remove("minimized");
+            isMinimized = false;
+            minimizeBtn.setAttribute("aria-label", "Minimize chat");
+          } else {
+            chatModal.classList.remove("active");
+            document.body.classList.remove("chat-active");
+          }
+        } else {
+          chatModal.classList.add("active");
+          document.body.classList.add("chat-active");
+        }
+      });
+
+      // Close button functionality
+      closeBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        chatModal.classList.remove("active");
+        chatModal.classList.remove("minimized");
+        document.body.classList.remove("chat-active");
+        isMinimized = false;
+        minimizeBtn.setAttribute("aria-label", "Minimize chat");
+      });
+
+      // Minimize button functionality
+      minimizeBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        isMinimized = !isMinimized;
+        chatModal.classList.toggle("minimized", isMinimized);
+        if (isMinimized) {
+          document.body.classList.remove("chat-active");
+        } else {
+          document.body.classList.add("chat-active");
+        }
+        minimizeBtn.setAttribute(
+          "aria-label",
+          isMinimized ? "Restore chat" : "Minimize chat"
+        );
+      });
+
+      // Restore from minimized state
+      document.querySelector(".chat-header").addEventListener("click", () => {
+        if (isMinimized) {
+          chatModal.classList.remove("minimized");
+          isMinimized = false;
+          document.body.classList.add("chat-active");
+          minimizeBtn.setAttribute("aria-label", "Minimize chat");
+        }
+      });
+
+      // Color control handlers
+      hue1Slider.addEventListener("input", (e) => {
+        document.documentElement.style.setProperty("--hue1", e.target.value);
+      });
+
+      hue2Slider.addEventListener("input", (e) => {
+        document.documentElement.style.setProperty("--hue2", e.target.value);
+      });
+
+      // Toggle color controls
+      colorControlsToggle.addEventListener("click", (e) => {
+        e.stopPropagation();
+        const isExpanded = colorControlsContent.style.display === "flex";
+        colorControlsContent.style.display = isExpanded ? "none" : "flex";
+        colorControlsToggle.setAttribute("aria-expanded", !isExpanded);
+      });
+
+      // Close color controls on outside click
+      document.addEventListener("click", (e) => {
+        if (
+          !colorControlsContent.contains(e.target) &&
+          e.target !== colorControlsToggle
+        ) {
+          colorControlsContent.style.display = "none";
+          colorControlsToggle.setAttribute("aria-expanded", "false");
+        }
+      });
+
+      // Auto-resize textarea and update send button state
+      chatInput.addEventListener("input", function () {
+        this.style.height = "auto";
+        this.style.height = Math.min(this.scrollHeight, 100) + "px";
+        sendButton.disabled = this.value.trim() === "";
+      });
+
+      // Handle Enter key
+      chatInput.addEventListener("keydown", function (e) {
+        if (e.key === "Enter" && !e.shiftKey) {
+          e.preventDefault();
+          sendMessage();
+        }
+      });
+
+      // Handle form submission
+      chatForm.addEventListener("submit", function (e) {
+        e.preventDefault();
+        sendMessage();
+      });
+
+      // Action button hover effects
+      actionButtons.forEach((button) => {
+        button.addEventListener("mouseenter", () => {
+          const icon = button.querySelector("i");
+          if (icon) {
+            icon.classList.add("animate-pulse");
+          }
+        });
+        button.addEventListener("mouseleave", () => {
+          const icon = button.querySelector("i");
+          if (icon) {
+            icon.classList.remove("animate-pulse");
+          }
+        });
+      });
+
+      // Language selector animation
+      languageSelector.addEventListener("click", () => {
+        languageSelector.style.transform = "scale(1.1)";
+        setTimeout(() => {
+          languageSelector.style.transform = "scale(1)";
+        }, 200);
+      });
+
+      function sendMessage() {
+        if (isSending) return;
+        const message = chatInput.value.trim();
+        if (!message) return;
+
+        isSending = true;
+        sendButton.disabled = true;
+        addMessage(message, "user");
+        chatInput.value = "";
+        chatInput.style.height = "auto";
+        chatInput.focus();
+        showTypingIndicator();
+
+        setTimeout(() => {
+          hideTypingIndicator();
+          const responses = [
+            "That's a great question! Let me think about that...",
+            "I understand what you're saying. Here's my perspective...",
+            "Thanks for sharing that with me. Based on what you've told me...",
+            "Interesting point! I'd like to explore this further...",
+            "I appreciate you reaching out. Here's what I think...",
+            "That's quite insightful! My thoughts on this are...",
+            "I see what you mean. Let me offer some insights...",
+            "Great question! This reminds me of...",
+            "Thank you for that message. I believe...",
+            "That's a fascinating topic! In my experience...",
+          ];
+          const randomResponse =
+            responses[Math.floor(Math.random() * responses.length)];
+          addMessage(randomResponse, "bot");
+          isSending = false;
+          sendButton.disabled = chatInput.value.trim() === "";
+        }, 1000 + Math.random() * 2000);
+      }
+
+      function addMessage(text, sender) {
+        const messageDiv = document.createElement("div");
+        messageDiv.className = `message ${sender}`;
+        const now = new Date();
+        const timeString = now.toLocaleTimeString([], {
+          hour: "2-digit",
+          minute: "2-digit",
+        });
+        messageDiv.innerHTML = `
+            <div>${text}</div>
+            <div class="message-time">${timeString}</div>
+        `;
+        chatMessages.appendChild(messageDiv);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+      }
+
+      function showTypingIndicator() {
+        typingIndicator.style.display = "flex";
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+      }
+
+      function hideTypingIndicator() {
+        typingIndicator.style.display = "none";
+      }
+
+      // Language data
+      const languages = {
+        en: {
+          flag: "🇺🇸",
+          name: "English",
+          translations: {
+            tagline: "Mindset • Skillset • Toolset",
+            blog_title: "Blog",
+            blog_subtitle: "Read my posts",
+            shop_title: "Shop",
+            shop_subtitle: "Browse my products",
+            contact_title: "Contact",
+            contact_subtitle: "Get in touch",
+            theme_name: "Light Mode",
+          },
+          links: {
+            blog: "https://willnapolini.com/blog",
+            shop: "https://willnapolini.com/shop",
+            contact: "https://willnapolini.com/contact",
+          },
+        },
+        ru: {
+          flag: "🇷🇺",
+          name: "Русский",
+          translations: {
+            tagline: "Мышление • Навыки • Инструменты",
+            blog_title: "Блог",
+            blog_subtitle: "Читайте мои посты",
+            shop_title: "Магазин",
+            shop_subtitle: "Просмотрите товары",
+            contact_title: "Контакты",
+            contact_subtitle: "Свяжитесь со мной",
+            theme_name: "Светлый режим",
+          },
+          links: {
+            blog: "https://willnapolini.ru/blog",
+            shop: "https://willnapolini.ru/shop",
+            contact: "https://willnapolini.ru/contact",
+          },
+        },
+        es: {
+          flag: "🇪🇸",
+          name: "Español",
+          translations: {
+            tagline: "Mentalidad • Habilidades • Herramientas",
+            blog_title: "Blog",
+            blog_subtitle: "Lee mis posts",
+            shop_title: "Tienda",
+            shop_subtitle: "Explora productos",
+            contact_title: "Contacto",
+            contact_subtitle: "Ponte en contacto",
+            theme_name: "Modo Claro",
+          },
+          links: {
+            blog: "https://willnapolini.es/blog",
+            shop: "https://willnapolini.es/shop",
+            contact: "https://willnapolini.es/contact",
+          },
+        },
+        fr: {
+          flag: "🇫🇷",
+          name: "Français",
+          translations: {
+            tagline: "Mentalité • Compétences • Outils",
+            blog_title: "Blog",
+            blog_subtitle: "Lisez mes articles",
+            shop_title: "Boutique",
+            shop_subtitle: "Parcourez produits",
+            contact_title: "Contact",
+            contact_subtitle: "Contactez-moi",
+            theme_name: "Mode Clair",
+          },
+          links: {
+            blog: "https://willnapolini.fr/blog",
+            shop: "https://willnapolini.fr/shop",
+            contact: "https://willnapolini.fr/contact",
+          },
+        },
+      };
+
+      let currentLanguage = "en";
+      const languageKeys = Object.keys(languages);
+      let currentLanguageIndex = 0;
+
+      // Update content based on language
+      function updateContent() {
+        const lang = languages[currentLanguage];
+
+        // Update language selector
+        const langSelector = document.getElementById("languageSelector");
+        langSelector.innerHTML = `
+            <span>${lang.flag}</span>
+            <span>${lang.name}</span>
+            <i class="fas fa-chevron-down text-xs"></i>
+        `;
+
+        // Update translations
+        document.querySelectorAll("[data-key]").forEach((element) => {
+          const key = element.getAttribute("data-key");
+          if (lang.translations[key]) {
+            element.textContent = lang.translations[key];
+          }
+        });
+
+        // Update button links
+        document.querySelectorAll("[data-section]").forEach((button) => {
+          const section = button.getAttribute("data-section");
+          if (lang.links[section]) {
+            button.href = lang.links[section];
+          }
+        });
+      }
+
+      // Language switcher
+      languageSelector.addEventListener("click", function () {
+        currentLanguageIndex = (currentLanguageIndex + 1) % languageKeys.length;
+        currentLanguage = languageKeys[currentLanguageIndex];
+        updateContent();
+      });
+
+      // Initialize
+      updateContent();
+    </script>
+  </body>
+</html>
